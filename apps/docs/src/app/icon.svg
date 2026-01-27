@@ -1,0 +1,6 @@
+<svg width="512" height="512" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Top parallelogram (dark green) -->
+  <path d="M5,25 L70,25 L85,55 L20,55 Z" fill="#249361"/>
+  <!-- Bottom parallelogram (lighter green) -->
+  <path d="M5,50 L70,50 L85,80 L20,80 Z" fill="#10B77F"/>
+</svg>

@@ -1,0 +1,112 @@
+---
+title: Quickstart
+description: Fix frozen clocks and stale content in under 5 minutes
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+## Install
+
+<Tabs items={['npm', 'yarn', 'pnpm', 'bun']}>
+  <Tab value="npm">
+```bash
+npm install prehydrate
+```
+  </Tab>
+  <Tab value="yarn">
+```bash
+yarn add prehydrate
+```
+  </Tab>
+  <Tab value="pnpm">
+```bash
+pnpm add prehydrate
+```
+  </Tab>
+  <Tab value="bun">
+```bash
+bun add prehydrate
+```
+  </Tab>
+</Tabs>
+
+## The problem
+
+Here's a typical clock component. It works great — until you deploy it.
+
+```tsx
+function Clock() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return <div>{time.toLocaleTimeString()}</div>;
+}
+```
+
+In production, users see the **build time** until React loads. On slow connections, that could be seconds of wrong content.
+
+## The fix
+
+Wrap your component with Prehydrate:
+
+```tsx
+import { prehydrate } from 'prehydrate';
+import { useState, useEffect } from 'react';
+
+function Clock({ bind }) {
+  const [time, setTime] = useState(() => {
+    const props = bind('time');
+    return props.time || new Date();
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return <div>{time.toLocaleTimeString()}</div>;
+}
+
+export function PrehydratedClock() {
+  const { Prehydrate, bind } = prehydrate({
+    key: 'clock',
+    initialState: () => new Date(),
+  });
+
+  return (
+    <Prehydrate>
+      <Clock bind={bind} />
+    </Prehydrate>
+  );
+}
+```
+
+That's it. Now your clock shows the correct time the instant the page loads.
+
+## What changed
+
+1. **`prehydrate()`** creates a wrapper that injects a tiny inline script
+2. **`initialState: () => new Date()`** runs immediately when the page loads — not at build time
+3. **`bind('time')`** connects your component's state to the prehydrated value
+
+The script runs before React even starts downloading. Users see the right time from the very first moment.
+
+## Next steps
+
+<Cards>
+  <Card
+    title="How It Works"
+    description="Understand the three-phase flow"
+    href="/docs/prehydrate/how-it-works"
+  />
+  <Card
+    title="Examples"
+    description="See more use cases"
+    href="/docs/prehydrate/examples"
+  />
+</Cards>

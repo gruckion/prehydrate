@@ -1,0 +1,55 @@
+---
+title: Introduction
+description: Show users the right content instantly, before React loads.
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+## The moment that matters
+
+You've built a beautiful clock component. It works perfectly in development. But in production, something's off.
+
+When users first load your page, they see the clock frozen at **3:42 PM** — the exact time your site was built. For a brief moment, your app looks broken. Then React loads, the clock jumps to the correct time, and everything starts working.
+
+That moment? That's the problem Prehydrate solves.
+
+## Why this happens
+
+Server-rendered React apps have a timing gap:
+
+1. **Your server builds the page** — The clock shows 3:42 PM (build time)
+2. **Users see the static HTML** — Still 3:42 PM, even though it's now 9:15 AM
+3. **React finally loads** — The clock jumps to 9:15 AM and starts ticking
+
+The bigger your React bundle, the longer users stare at wrong content.
+
+## What Prehydrate does
+
+Prehydrate runs a tiny script the instant the page loads — before React even starts downloading. In milliseconds, your clock shows the right time.
+
+No more frozen clocks. No more stale content. No more awkward jumps.
+
+Users see the correct content from the very first moment.
+
+<Cards>
+  <Card
+    title="Quick Start"
+    description="Get started in under 5 minutes"
+    href="/docs/quickstart"
+  />
+  <Card
+    title="How It Works"
+    description="See the three-phase flow"
+    href="/docs/prehydrate/how-it-works"
+  />
+  <Card
+    title="API Reference"
+    description="Complete API documentation"
+    href="/docs/prehydrate/api-reference"
+  />
+  <Card
+    title="Examples"
+    description="See working examples"
+    href="/docs/prehydrate/examples"
+  />
+</Cards>

@@ -1,0 +1,148 @@
+---
+title: Examples
+description: Real-world scenarios where Prehydrate shines
+---
+
+import { Cards, Card } from 'fumadocs-ui/components/card';
+
+## When you need Prehydrate
+
+Any time your server-rendered content could be "wrong" when users first see it:
+
+- **Clocks and timers** — Show the current time, not build time
+- **Countdowns** — "Sale ends in 2 hours" shouldn't show yesterday's countdown
+- **User preferences** — Dark mode, locale, timezone
+- **Live data** — Stock prices, scores, availability
+- **Personalization** — "Good morning" at 10 PM looks broken
+
+## Example: Clock
+
+The classic example. Without Prehydrate, users see a frozen clock until React loads.
+
+<Cards>
+  <Card
+    title="Clock Example"
+    description="See the complete working example on GitHub"
+    href="https://github.com/gruckion/prehydrate/tree/main/examples/clock"
+  />
+</Cards>
+
+```tsx
+import { prehydrate } from 'prehydrate';
+import { useState, useEffect } from 'react';
+
+function Clock({ bind }) {
+  const [time, setTime] = useState(() => {
+    const props = bind('time');
+    return props.time || new Date();
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return <div className="clock">{time.toLocaleTimeString()}</div>;
+}
+
+export function PrehydratedClock() {
+  const { Prehydrate, bind } = prehydrate({
+    key: 'clock',
+    initialState: () => new Date(),
+  });
+
+  return (
+    <Prehydrate>
+      <Clock bind={bind} />
+    </Prehydrate>
+  );
+}
+```
+
+**The key:** `initialState: () => new Date()` is a function. It runs when the page loads, not when the server builds.
+
+---
+
+## Example: Traffic Light
+
+A visual demonstration of the three phases. Watch the light change:
+
+1. **Red** — Server-rendered state
+2. **Orange** — Prehydrate updates it
+3. **Green** — React takes over
+
+<Cards>
+  <Card
+    title="Traffic Light Example"
+    description="See the complete working example on GitHub"
+    href="https://github.com/gruckion/prehydrate/tree/main/examples/traffic-light"
+  />
+</Cards>
+
+```tsx
+import { prehydrate } from 'prehydrate';
+import { useState, useEffect } from 'react';
+
+function TrafficLight({ bind }) {
+  const [color, setColor] = useState(() => {
+    const props = bind('color');
+    return props.color || 'red';
+  });
+
+  useEffect(() => {
+    setColor('green'); // React is now in control
+  }, []);
+
+  return <Light color={color} />;
+}
+
+export function PrehydratedTrafficLight() {
+  const { Prehydrate, bind } = prehydrate({
+    key: 'traffic-light',
+    initialState: 'orange', // Static value, not a function
+  });
+
+  return (
+    <Prehydrate>
+      <TrafficLight bind={bind} />
+    </Prehydrate>
+  );
+}
+```
+
+**The key:** `initialState: 'orange'` is a static value. Use this when you know the prehydrated state ahead of time.
+
+---
+
+## Static vs. Function
+
+Choose based on what you know at build time:
+
+| Use case | initialState | Why |
+|----------|-------------|-----|
+| Current time | `() => new Date()` | Must be evaluated when page loads |
+| User's timezone | `() => Intl.DateTimeFormat().resolvedOptions().timeZone` | Browser-specific |
+| Known transition state | `'loading'` or `'orange'` | You know the value ahead of time |
+| Computed from URL | `() => new URL(location.href).searchParams.get('tab')` | Needs browser APIs |
+
+---
+
+## Running the examples locally
+
+```bash
+# Clone the repo
+git clone https://github.com/gruckion/prehydrate.git
+cd prehydrate
+
+# Run the clock example
+cd examples/clock
+npm install
+npm run dev
+# Open http://localhost:5173
+
+# Run the traffic light example
+cd ../traffic-light
+npm install
+npm run dev
+# Open http://localhost:5173
+```

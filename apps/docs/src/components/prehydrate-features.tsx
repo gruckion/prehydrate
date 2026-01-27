@@ -1,0 +1,179 @@
+'use client';
+
+/**
+ * Color palette matching the Remotion video
+ */
+const colors = {
+  background: '#0a0a0a',
+  surface: '#1a1a1a',
+  surfaceBorder: '#2a2a2a',
+  red: '#ef4444',
+  orange: '#f59e0b',
+  green: '#22c55e',
+  lightOff: '#374151',
+  redGlow: 'rgba(239, 68, 68, 0.4)',
+  orangeGlow: 'rgba(245, 158, 11, 0.4)',
+  greenGlow: 'rgba(34, 197, 94, 0.4)',
+  text: '#ffffff',
+  textMuted: '#a1a1aa',
+};
+
+type LightState = 'red' | 'orange' | 'green' | 'none';
+
+interface TrafficLightProps {
+  activeLight: LightState;
+  scale?: number;
+}
+
+function TrafficLight({ activeLight, scale = 0.5 }: TrafficLightProps) {
+  const getLightProps = (light: 'red' | 'orange' | 'green') => {
+    const isOn = activeLight === light;
+    const colorMap = {
+      red: { color: colors.red, glow: colors.redGlow },
+      orange: { color: colors.orange, glow: colors.orangeGlow },
+      green: { color: colors.green, glow: colors.greenGlow },
+    };
+    return {
+      fill: isOn ? colorMap[light].color : colors.lightOff,
+      opacity: isOn ? 1 : 0.3,
+      filter: isOn ? `drop-shadow(0 0 8px ${colorMap[light].glow}) drop-shadow(0 0 16px ${colorMap[light].glow})` : undefined,
+    };
+  };
+
+  const width = 100;
+  const height = 220;
+
+  return (
+    <svg width={width * scale} height={height * scale} viewBox={`0 0 ${width} ${height}`}>
+      {/* Housing */}
+      <rect x={10} y={10} width={80} height={200} rx={16} fill={colors.surface} stroke={colors.surfaceBorder} strokeWidth={2} />
+      <rect x={20} y={20} width={60} height={180} rx={12} fill={colors.background} />
+
+      {/* Visors */}
+      <path d="M 25 45 Q 50 35 75 45" fill="none" stroke={colors.surfaceBorder} strokeWidth={3} strokeLinecap="round" />
+      <path d="M 25 105 Q 50 95 75 105" fill="none" stroke={colors.surfaceBorder} strokeWidth={3} strokeLinecap="round" />
+      <path d="M 25 165 Q 50 155 75 165" fill="none" stroke={colors.surfaceBorder} strokeWidth={3} strokeLinecap="round" />
+
+      {/* Red light */}
+      <g style={{ filter: getLightProps('red').filter }}>
+        <circle cx={50} cy={60} r={18} fill={getLightProps('red').fill} opacity={getLightProps('red').opacity} />
+        {activeLight === 'red' && <circle cx={50} cy={60} r={12} fill={colors.red} opacity={0.9} />}
+        <circle cx={44} cy={54} r={4} fill="white" opacity={activeLight === 'red' ? 0.3 : 0.05} />
+      </g>
+
+      {/* Orange light */}
+      <g style={{ filter: getLightProps('orange').filter }}>
+        <circle cx={50} cy={110} r={18} fill={getLightProps('orange').fill} opacity={getLightProps('orange').opacity} />
+        {activeLight === 'orange' && <circle cx={50} cy={110} r={12} fill={colors.orange} opacity={0.9} />}
+        <circle cx={44} cy={104} r={4} fill="white" opacity={activeLight === 'orange' ? 0.3 : 0.05} />
+      </g>
+
+      {/* Green light */}
+      <g style={{ filter: getLightProps('green').filter }}>
+        <circle cx={50} cy={160} r={18} fill={getLightProps('green').fill} opacity={getLightProps('green').opacity} />
+        {activeLight === 'green' && <circle cx={50} cy={160} r={12} fill={colors.green} opacity={0.9} />}
+        <circle cx={44} cy={154} r={4} fill="white" opacity={activeLight === 'green' ? 0.3 : 0.05} />
+      </g>
+
+      {/* Pole */}
+      <rect x={40} y={200} width={20} height={20} fill={colors.surface} />
+    </svg>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg width={40} height={20} className="mx-2 opacity-50">
+      <path d="M 0 10 L 28 10" stroke={colors.textMuted} strokeWidth={2} strokeLinecap="round" fill="none" />
+      <path d="M 28 5 L 38 10 L 28 15" stroke={colors.textMuted} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </svg>
+  );
+}
+
+function Checkmark({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" style={{ filter: `drop-shadow(0 0 4px ${colors.greenGlow})` }}>
+      <path
+        d="M 4 10 L 8 14 L 16 6"
+        stroke={colors.green}
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+// Framework logo SVGs
+const NextJsLogo = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M11.572 0c-.176 0-.31.001-.358.007a19.76 19.76 0 0 0-.364.033C7.443.346 4.25 2.185 2.228 5.012a11.875 11.875 0 0 0-2.119 5.243c-.096.659-.108.854-.108 1.747s.012 1.089.108 1.748c.652 4.506 3.86 8.292 8.209 9.695.779.251 1.6.422 2.534.525.363.04 1.935.04 2.299 0 1.611-.178 2.977-.577 4.323-1.264.207-.106.247-.134.219-.158-.02-.013-.9-1.193-1.955-2.62l-1.919-2.592-2.404-3.558a338.739 338.739 0 0 0-2.422-3.556c-.009-.002-.018 1.579-.023 3.51-.007 3.38-.01 3.515-.052 3.595a.426.426 0 0 1-.206.214c-.075.037-.14.044-.495.044H7.81l-.108-.068a.438.438 0 0 1-.157-.171l-.05-.106.006-4.703.007-4.705.072-.092a.645.645 0 0 1 .174-.143c.096-.047.134-.051.54-.051.478 0 .558.018.682.154.035.038 1.337 1.999 2.895 4.361a10760.433 10760.433 0 0 0 4.735 7.17l1.9 2.879.096-.063a12.317 12.317 0 0 0 2.466-2.163 11.944 11.944 0 0 0 2.824-6.134c.096-.66.108-.854.108-1.748 0-.893-.012-1.088-.108-1.747-.652-4.506-3.859-8.292-8.208-9.695a12.597 12.597 0 0 0-2.499-.523A33.119 33.119 0 0 0 11.572 0zm4.069 7.217c.347 0 .408.005.486.047a.473.473 0 0 1 .237.277c.018.06.023 1.365.018 4.304l-.006 4.218-.744-1.14-.746-1.14v-3.066c0-1.982.01-3.097.023-3.15a.478.478 0 0 1 .233-.296c.096-.05.13-.054.5-.054z" />
+  </svg>
+);
+
+const RemixLogo = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M21.511 18.508c.216 2.773.216 4.073.216 5.492H15.31c0-.309.006-.592.011-.878.018-.892.036-1.821-.109-3.698-.19-2.747-1.374-3.358-3.55-3.358H1.574v-5h10.396c2.748 0 4.122-.916 4.122-2.977 0-1.832-1.374-2.977-4.122-2.977H1.574V0h11.541c6.221 0 9.313 2.631 9.313 6.82 0 3.242-2.06 5.353-4.809 5.698v.115c2.748.457 4.122 2.173 3.892 5.875zM1.574 24v-3.263h6.57c1.143 0 1.377.458 1.377 1.223V24H1.574z" />
+  </svg>
+);
+
+const ViteLogo = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="m8.286 10.578.512-8.657a.306.306 0 0 1 .247-.282L17.377.006a.306.306 0 0 1 .353.385l-1.558 5.403a.306.306 0 0 0 .352.385l2.388-.46a.306.306 0 0 1 .332.438l-6.79 13.55-.123.19a.294.294 0 0 1-.252.14c-.177 0-.35-.152-.305-.369l1.095-5.301a.306.306 0 0 0-.388-.355l-1.433.435a.306.306 0 0 1-.389-.354l.69-3.375a.306.306 0 0 0-.37-.36l-2.32.536a.306.306 0 0 1-.374-.316zm14.976-7.926L17.284 3.74l-.544 1.887 2.077-.4a.8.8 0 0 1 .84.369.8.8 0 0 1 .034.783L12.9 19.93l-.013.025-.015.023-.122.19a.801.801 0 0 1-.672.37.826.826 0 0 1-.634-.302.8.8 0 0 1-.16-.67l1.029-4.981-1.12.34a.81.81 0 0 1-.86-.262.802.802 0 0 1-.165-.67l.63-3.08-2.027.468a.808.808 0 0 1-.768-.233.81.81 0 0 1-.217-.6l.389-6.57-7.44-1.33a.612.612 0 0 0-.64.906L11.58 23.691a.612.612 0 0 0 1.066-.004l11.26-20.135a.612.612 0 0 0-.644-.9z" />
+  </svg>
+);
+
+const TypeScriptLogo = ({ size, color }: { size: number; color: string }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+    <path d="M1.125 0C.502 0 0 .502 0 1.125v21.75C0 23.498.502 24 1.125 24h21.75c.623 0 1.125-.502 1.125-1.125V1.125C24 .502 23.498 0 22.875 0zm17.363 9.75c.612 0 1.154.037 1.627.111a6.38 6.38 0 0 1 1.306.34v2.458a3.95 3.95 0 0 0-.643-.361 5.093 5.093 0 0 0-.717-.26 5.453 5.453 0 0 0-1.426-.2c-.3 0-.573.028-.819.086a2.1 2.1 0 0 0-.623.242c-.17.104-.3.229-.393.374a.888.888 0 0 0-.14.49c0 .196.053.373.156.529.104.156.252.304.443.444s.423.276.696.41c.273.135.582.274.926.416.47.197.892.407 1.266.628.374.222.695.473.963.753.268.279.472.598.614.957.142.359.214.776.214 1.253 0 .657-.125 1.21-.373 1.656a3.033 3.033 0 0 1-1.012 1.085 4.38 4.38 0 0 1-1.487.596c-.566.12-1.163.18-1.79.18a9.916 9.916 0 0 1-1.84-.164 5.544 5.544 0 0 1-1.512-.493v-2.63a5.033 5.033 0 0 0 3.237 1.2c.333 0 .624-.03.872-.09.249-.06.456-.144.623-.25.166-.108.29-.234.373-.38a1.023 1.023 0 0 0-.074-1.089 2.12 2.12 0 0 0-.537-.5 5.597 5.597 0 0 0-.807-.444 27.72 27.72 0 0 0-1.007-.436c-.918-.383-1.602-.852-2.053-1.405-.45-.553-.676-1.222-.676-2.005 0-.614.123-1.141.369-1.582.246-.441.58-.804 1.004-1.089a4.494 4.494 0 0 1 1.47-.629 7.536 7.536 0 0 1 1.77-.201zm-15.113.188h9.563v2.166H9.506v9.646H6.789v-9.646H3.375z" />
+  </svg>
+);
+
+interface TrafficLightPhaseProps {
+  light: LightState;
+  label: string;
+}
+
+function TrafficLightPhase({ light, label }: TrafficLightPhaseProps) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <TrafficLight activeLight={light} scale={0.45} />
+      <span className="text-xs text-[#a1a1aa] font-medium">{label}</span>
+    </div>
+  );
+}
+
+export function PrehydrateFeatures() {
+  return (
+    <div className="w-full max-w-4xl mx-auto mt-16 px-4">
+      {/* Traffic light phases */}
+      <div className="flex items-center justify-center gap-2 mb-10">
+        <TrafficLightPhase light="red" label="SSR" />
+        <Arrow />
+        <TrafficLightPhase light="orange" label="Pre-hydrate" />
+        <Arrow />
+        <TrafficLightPhase light="green" label="Hydrate" />
+      </div>
+
+      {/* Main heading */}
+      <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-4">
+        Show users real content. Not loading states.
+      </h2>
+
+      {/* Checkmark with subtext */}
+      <div className="flex items-center justify-center gap-2 mb-8">
+        <Checkmark size={18} />
+        <span className="text-[#22c55e] text-sm font-medium">No mismatch. No flicker.</span>
+      </div>
+
+      {/* Framework logos */}
+      <div className="flex items-center justify-center gap-6">
+        <NextJsLogo size={28} color={colors.textMuted} />
+        <RemixLogo size={28} color={colors.textMuted} />
+        <ViteLogo size={28} color={colors.textMuted} />
+        <TypeScriptLogo size={28} color={colors.textMuted} />
+      </div>
+    </div>
+  );
+}
