@@ -27,7 +27,7 @@
     "@repo/typescript-config": "*",
     "@resvg/resvg-js": "^2.6.2",
     "@turbo/gen": "^2.5.8",
-    "@types/node": "^24.7.0",
+    "@types/node": "^25.0.10",
     "docs": "workspace:*",
     "satori": "^0.19.1",
     "tsup": "^8.5.0",
