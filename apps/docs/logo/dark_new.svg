@@ -1,0 +1,14 @@
+<svg width="340" height="153" viewBox="0 0 340 153" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon portion with padding -->
+  <g transform="translate(20, 20)">
+    <!-- Top layer (dark green) -->
+    <path d="M9,20 L80,20 L100,60 L29,60 Z" fill="#249361" />
+    <!-- Bottom layer (lighter green) -->
+    <path d="M9,50 L80,50 L100,90 L29,90 Z" fill="#10B77F" />
+  </g>
+
+  <!-- Text "Gruckion" with padding -->
+  <text x="135" y="90" font-family="'Geist Variable', sans-serif" font-size="42" font-weight="700" fill="#FFFFFF">
+    Gruckion
+  </text>
+</svg>
