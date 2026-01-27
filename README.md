@@ -28,16 +28,23 @@ Common scenarios where this happens:
 
 **prehydrate** runs your code _after_ the HTML loads but _before_ React hydrates. This lets you update the DOM with fresh data (from cookies, localStorage, current time, etc.) so React finds exactly what it expects.
 
-```
-Timeline:
-─────────────────────────────────────────────────────────────────────►
+```mermaid
+flowchart LR
+    subgraph T1["<b>0ms</b>"]
+        A1[HTML loads<br/><i>stale data</i>]
+    end
 
-[0ms]          [~50ms]                    [~200ms]
-HTML loads     Prehydration runs          React hydrates
-(stale data)   (fresh data applied)       (DOM already correct!)
-               ▲                          ▲
-               │                          │
-               └── Your code runs here    └── No mismatch!
+    subgraph T2["<b>~50ms</b>"]
+        B1[Prehydration runs<br/><i>fresh data applied</i>]
+        B2[/"⬆️ Your code runs here"/]
+    end
+
+    subgraph T3["<b>~200ms</b>"]
+        C1[React hydrates<br/><i>DOM already correct!</i>]
+        C2[/"⬆️ No mismatch!"/]
+    end
+
+    T1 ==> T2 ==> T3
 ```
 
 ## Installation
@@ -425,63 +432,30 @@ prehydrate works with any Vite SSR setup. See the [examples/vite-ssr](./examples
 
 Here's a visual representation of what happens with a traffic light component:
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ Phase 1: Server-Side Rendering                                      │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  Server executes:                                                   │
-│  - prehydrate({ key: "traffic", initialState: "orange" })           │
-│  - Generates DOM code for the component                             │
-│  - Embeds inline <script> in HTML                                   │
-│                                                                     │
-│  HTML sent to browser:                                              │
-│  ┌─────────────────────────────────────────┐                        │
-│  │ <div id="prehydrate-traffic">           │                        │
-│  │   <svg>  🔴 (red - SSR default)         │                        │
-│  │ </div>                                  │                        │
-│  │ <script>/* prehydration code */</script>│                        │
-│  └─────────────────────────────────────────┘                        │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│ Phase 2: Prehydration (Before React Loads)                          │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  Inline script executes:                                            │
-│  - Evaluates initialState → "orange"                                │
-│  - Generates DOM elements with orange light active                  │
-│  - Replaces SSR content                                             │
-│                                                                     │
-│  DOM now shows:                                                     │
-│  ┌─────────────────────────────────────────┐                        │
-│  │ <div id="prehydrate-traffic">           │                        │
-│  │   <svg>  🟠 (orange - prehydrated!)     │                        │
-│  │ </div>                                  │                        │
-│  └─────────────────────────────────────────┘                        │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│ Phase 3: React Hydration                                            │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                     │
-│  React calls hydrateRoot():                                         │
-│  - Component renders with initial state from bind()                 │
-│  - DOM already matches → no hydration mismatch!                     │
-│  - useEffect runs → setState("green")                               │
-│                                                                     │
-│  DOM now shows:                                                     │
-│  ┌─────────────────────────────────────────┐                        │
-│  │ <div id="prehydrate-traffic">           │                        │
-│  │   <svg>  🟢 (green - React controlled)  │                        │
-│  │ </div>                                  │                        │
-│  └─────────────────────────────────────────┘                        │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Phase1["🔴 Phase 1: SSR"]
+        direction TB
+        P1A["<b>Server executes:</b><br/>• prehydrate#40;#123; key: 'traffic', initialState: 'orange' #125;#41;<br/>• Generates DOM code for the component<br/>• Embeds inline script in HTML"]
+        P1B["<b>HTML sent to browser:</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━<br/>#lt;div id='prehydrate-traffic'#gt;<br/>  #lt;svg#gt; 🔴 red - SSR default<br/>#lt;/div#gt;<br/>#lt;script#gt;/* prehydration code */#lt;/script#gt;"]
+        P1A --- P1B
+    end
+
+    subgraph Phase2["🟠 Phase 2: Prehydration"]
+        direction TB
+        P2A["<b>Inline script executes:</b><br/>• Evaluates initialState → 'orange'<br/>• Generates DOM elements with orange light active<br/>• Replaces SSR content"]
+        P2B["<b>DOM now shows:</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━<br/>#lt;div id='prehydrate-traffic'#gt;<br/>  #lt;svg#gt; 🟠 orange - prehydrated!<br/>#lt;/div#gt;"]
+        P2A --- P2B
+    end
+
+    subgraph Phase3["🟢 Phase 3: Hydration"]
+        direction TB
+        P3A["<b>React calls hydrateRoot#40;#41;:</b><br/>• Component renders with initial state from bind#40;#41;<br/>• DOM already matches → no hydration mismatch!<br/>• useEffect runs → setState#40;'green'#41;"]
+        P3B["<b>DOM now shows:</b><br/>━━━━━━━━━━━━━━━━━━━━━━━━<br/>#lt;div id='prehydrate-traffic'#gt;<br/>  #lt;svg#gt; 🟢 green - React controlled<br/>#lt;/div#gt;"]
+        P3A --- P3B
+    end
+
+    Phase1 ==> Phase2 ==> Phase3
 ```
 
 ## Troubleshooting
