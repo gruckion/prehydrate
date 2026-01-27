@@ -6,30 +6,51 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **next-forge** project - a production-grade Turborepo monorepo template for Next.js SaaS applications. It uses Turborepo for build orchestration and pnpm/bun for package management.
 
+## Critical: Always Run Commands from the Monorepo Root
+
+**IMPORTANT**: Always run `bun install` and build commands from the monorepo root directory (`/prehydrate`), not from within individual app directories. Running from subdirectories can cause esbuild and other native module issues.
+
+```bash
+# CORRECT - from monorepo root
+cd /path/to/prehydrate
+bun install
+bun run build --filter docs
+
+# INCORRECT - do not run from app directories
+cd apps/docs && bun install  # This can cause issues!
+```
+
 ## Development Commands
 
 ### Running the project
 
 ```bash
-# Start all apps in development mode
+# Start all apps in development mode (from root)
 bun dev
 
 # Start specific apps (runs on designated ports)
 # - apps/app: http://localhost:3000 (main application)
 # - apps/web: http://localhost:3001 (marketing site)
 # - apps/api: http://localhost:3002 (API server)
-cd apps/app && bun dev        # Main app only
-cd apps/web && bun dev        # Marketing site only
-cd apps/api && bun dev        # API + Stripe webhook listener
+# - apps/docs: http://localhost:3004 (documentation site)
+bun run dev --filter app      # Main app only
+bun run dev --filter web      # Marketing site only
+bun run dev --filter api      # API + Stripe webhook listener
+bun run dev --filter docs     # Documentation site only
 ```
 
 ### Building
 
 ```bash
-# Build all apps and packages
+# Build all apps and packages (from root)
 bun build
 
-# Build a specific app
+# Build a specific app using --filter (RECOMMENDED)
+bun run build --filter docs
+bun run build --filter app
+bun run build --filter web
+
+# Alternative using turbo directly
 turbo build --filter=app
 ```
 
@@ -94,7 +115,7 @@ bun translate
 - `apps/app` - Main SaaS application with authentication, uses Clerk for auth
 - `apps/web` - Marketing website with internationalization (uses `[locale]` routing)
 - `apps/api` - API server with webhook handling (includes Stripe webhook forwarding)
-- `apps/docs` - Documentation site (Mintlify)
+- `apps/docs` - Documentation site (Fumadocs with Next.js, deployed to Cloudflare Pages)
 - `apps/email` - Email templates (React Email)
 - `apps/storybook` - Component library showcase
 - `apps/studio` - Database studio
