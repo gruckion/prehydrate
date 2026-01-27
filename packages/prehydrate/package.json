@@ -1,0 +1,53 @@
+{
+  "name": "prehydrate",
+  "version": "0.1.0",
+  "description": "Run JavaScript before React hydrates. Eliminate hydration mismatches forever.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "clean": "rm -rf dist node_modules .turbo",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "react",
+    "hydration",
+    "ssr",
+    "prehydration",
+    "hydration-mismatch"
+  ],
+  "author": "Stephen Rayner",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gruckion/prehydrate"
+  },
+  "homepage": "https://prehydrate.gruckion.com",
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "*",
+    "@types/react": "^19.2.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "prehydrate-example-clock",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "vite build --outDir dist/client",
+    "build:server": "vite build --outDir dist/server --ssr src/entry-server.tsx",
+    "preview": "cross-env NODE_ENV=production node server.js"
+  },
+  "dependencies": {
+    "compression": "^1.8.1",
+    "cross-env": "^10.1.0",
+    "express": "^5.1.0",
+    "prehydrate": "file:../../packages/prehydrate",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "sirv": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.7.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "^5.9.3",
+    "vite": "^6.0.7"
+  }
+}

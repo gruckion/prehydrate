@@ -1,9 +1,0 @@
-<svg width="140" height="153" viewBox="0 0 140 153" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Icon portion only with padding -->
-  <g transform="translate(20, 20)">
-    <!-- Top layer (dark green) -->
-    <path d="M9,20 L80,20 L100,60 L29,60 Z" fill="#249361" />
-    <!-- Bottom layer (lighter green) -->
-    <path d="M9,50 L80,50 L100,90 L29,90 Z" fill="#10B77F" />
-  </g>
-</svg>

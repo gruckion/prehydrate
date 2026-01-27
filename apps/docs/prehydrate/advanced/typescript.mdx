@@ -1,0 +1,210 @@
+---
+title: 'TypeScript'
+description: 'Get autocomplete and catch errors early'
+---
+
+## Why TypeScript?
+
+Prehydrate is built with TypeScript, which means your editor knows exactly what's happening. You get:
+
+- **Autocomplete** — See available options as you type
+- **Error checking** — Catch mistakes before you run your code
+- **Documentation** — Hover over anything to see what it does
+
+## Tell Prehydrate your state type
+
+Add a type parameter to `prehydrate()` and everything flows from there:
+
+```tsx
+import { prehydrate } from 'prehydrate';
+
+// Type-safe state
+const { Prehydrate, bind } = prehydrate<Date>({
+  key: 'clock',
+  initialState: () => new Date(),
+});
+```
+
+Now TypeScript knows:
+
+1. Your `initialState` must return a `Date`
+2. The `bind()` function returns `Date` values
+3. Your editor can warn you if something doesn't match
+
+## Typing your component props
+
+When you pass `bind` to a component, you can type it for better autocomplete:
+
+```tsx
+interface ClockProps {
+  bind: (key: string) => Record<string, Date | undefined>;
+}
+
+function Clock({ bind }: ClockProps) {
+  const [time, setTime] = useState<Date>(() => {
+    const boundProps = bind('time');
+    return boundProps.time || new Date();
+  });
+
+  // ...
+}
+```
+
+Or use the generic return type from `prehydrate`:
+
+```tsx
+import { prehydrate, PrehydrateResult } from 'prehydrate';
+
+const result: PrehydrateResult<Date> = prehydrate<Date>({
+  key: 'clock',
+  initialState: () => new Date(),
+});
+```
+
+## Available types
+
+If you need them, Prehydrate exports all its types:
+
+```tsx
+import type {
+  PrehydrateOptions,
+  PrehydrateResult,
+  PrehydrateProps,
+  DependencyMap,
+} from 'prehydrate';
+```
+
+### `PrehydrateOptions<T>`
+
+```tsx
+interface PrehydrateOptions<T = unknown> {
+  key: string;
+  initialState?: T | (() => T);
+  deps?: DependencyMap;
+}
+```
+
+### `PrehydrateResult<T>`
+
+```tsx
+interface PrehydrateResult<T = unknown> {
+  Prehydrate: ComponentType<PrehydrateProps>;
+  bind: (key: string) => Record<string, T | undefined>;
+}
+```
+
+### `PrehydrateProps`
+
+```tsx
+interface PrehydrateProps {
+  children: ReactNode;
+}
+```
+
+### `DependencyMap`
+
+```tsx
+type DependencyMap = Record<string, unknown>;
+```
+
+## Typed helper functions
+
+Your dependencies get type-checked too:
+
+```tsx
+function formatTime(date: Date): string {
+  return date.toLocaleTimeString();
+}
+
+const { Prehydrate, bind } = prehydrate<Date>({
+  key: 'clock',
+  initialState: () => new Date(),
+  deps: {
+    formatTime,
+  },
+});
+```
+
+The types won't exist at runtime (dependencies become plain JavaScript), but they help catch mistakes while you're coding.
+
+## Putting it all together
+
+```tsx
+import { prehydrate, PrehydrateResult } from 'prehydrate';
+import { useState, useEffect, ReactElement } from 'react';
+
+// Define state type
+type TrafficLightState = 'red' | 'orange' | 'green';
+
+// Helper function with types
+function getLights(state: TrafficLightState) {
+  return [
+    { color: 'red' as const, active: state === 'red' },
+    { color: 'orange' as const, active: state === 'orange' },
+    { color: 'green' as const, active: state === 'green' },
+  ];
+}
+
+// Props interface
+interface TrafficLightProps {
+  bind: (key: string) => Record<string, TrafficLightState | undefined>;
+}
+
+// Component with typed bind
+function TrafficLight({ bind }: TrafficLightProps): ReactElement {
+  const [state, setState] = useState<TrafficLightState>(() => {
+    const boundProps = bind('state');
+    return boundProps.state || 'red';
+  });
+
+  useEffect(() => {
+    setState('green');
+  }, []);
+
+  const lights = getLights(state);
+
+  return (
+    <svg width="50" height="120">
+      {lights.map(({ color, active }, i) => (
+        <circle
+          key={color}
+          cx="25"
+          cy={25 + i * 35}
+          r="13"
+          fill={active ? color : '#555'}
+        />
+      ))}
+    </svg>
+  );
+}
+
+// Prehydrated wrapper with generic type
+export function PrehydratedTrafficLight(): ReactElement {
+  const { Prehydrate, bind }: PrehydrateResult<TrafficLightState> =
+    prehydrate<TrafficLightState>({
+      key: 'traffic-light',
+      initialState: 'orange',
+      deps: { getLights },
+    });
+
+  return (
+    <Prehydrate>
+      <TrafficLight bind={bind} />
+    </Prehydrate>
+  );
+}
+```
+
+## Project setup
+
+Most TypeScript projects already have the settings Prehydrate needs:
+
+```json
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "moduleResolution": "node" // or "bundler"
+  }
+}
+```
