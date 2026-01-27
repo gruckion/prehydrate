@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "generate-og": "npx tsx scripts/generate-og.tsx",
-    "build": "bun run generate-og && next build",
+    "sync-search": "bun scripts/sync-orama.ts",
+    "build": "bun run generate-og && next build && bun run sync-search",
     "dev": "next dev --port 3004",
     "start": "next start",
     "deploy": "wrangler pages deploy out --project-name=prehydrate-docs --commit-dirty=true",

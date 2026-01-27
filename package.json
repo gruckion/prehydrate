@@ -42,6 +42,8 @@
   "packageManager": "bun@1.1.43",
   "dependencies": {
     "@clack/prompts": "^0.11.0",
+    "@orama/core": "^1.2.16",
+    "@oramacloud/client": "^2.1.4",
     "commander": "^14.0.1"
   },
   "type": "module",

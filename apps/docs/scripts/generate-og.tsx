@@ -8,6 +8,9 @@ import satori from "satori";
 const WIDTH = 1200;
 const HEIGHT = 630;
 
+// File size conversion
+const BYTES_PER_KB = 1024;
+
 // Layout constants
 const LAYOUT = {
   // Main container
@@ -406,7 +409,7 @@ async function generateOGImage() {
   const stats = await import("node:fs").then((fs) =>
     fs.promises.stat(outputPath)
   );
-  const sizeKB = (stats.size / 1024).toFixed(2);
+  const sizeKB = (stats.size / BYTES_PER_KB).toFixed(2);
 
   console.log(`✓ Generated OG image: ${outputPath}`);
   console.log(`  Dimensions: ${WIDTH}x${HEIGHT}px`);
