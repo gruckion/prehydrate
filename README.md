@@ -3,7 +3,7 @@
 ![Prehydrate Banner](assets/banner.jpg)
 
 [![npm version](https://img.shields.io/npm/v/prehydrate)](https://www.npmjs.com/package/prehydrate)
-[![bundle size](https://img.shields.io/bundlephobia/minzip/prehydrate)](https://bundlephobia.com/package/prehydrate)
+[![install size](https://packagephobia.com/badge?p=prehydrate)](https://packagephobia.com/result?p=prehydrate)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue)](https://www.typescriptlang.org/)
 [![license](https://img.shields.io/npm/l/prehydrate)](./LICENSE)
 
