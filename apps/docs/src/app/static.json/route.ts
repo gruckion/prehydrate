@@ -1,21 +1,20 @@
-import { NextResponse } from 'next/server';
-import { type OramaDocument } from 'fumadocs-core/search/orama-cloud';
-import { source } from '@/lib/source';
+import type { OramaDocument } from "fumadocs-core/search/orama-cloud";
+import { source } from "@/lib/source";
 
 export const revalidate = false;
 
-export function GET() {
-  const results: OramaDocument[] = [];
+export function GET(): Response {
+  const pages = source.getPages();
 
-  for (const page of source.getPages()) {
-    results.push({
+  const results: OramaDocument[] = pages.map((page) => {
+    return {
       id: page.url,
       structured: page.data.structuredData,
       url: page.url,
       title: page.data.title,
       description: page.data.description,
-    });
-  }
+    };
+  });
 
-  return NextResponse.json(results);
+  return Response.json(results);
 }

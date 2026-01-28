@@ -1,5 +1,6 @@
-'use client';
+"use client";
 
+import { OramaCloud } from "@orama/core";
 import {
   SearchDialog,
   SearchDialogClose,
@@ -11,26 +12,54 @@ import {
   SearchDialogList,
   SearchDialogOverlay,
   type SharedProps,
-} from 'fumadocs-ui/components/dialog/search';
-import { useDocsSearch } from 'fumadocs-core/search/client';
-import { OramaCloud } from '@orama/core';
+} from "fumadocs-ui/components/dialog/search";
+import { useMemo } from "react";
+import { useOramaSearch } from "@/hooks/use-orama-search";
 
-const client = new OramaCloud({
-  projectId: 'ba9a6f25-29c4-4a38-b825-a1e6d8cd72d5',
-  apiKey: process.env.NEXT_PUBLIC_ORAMA_API_KEY!,
-});
+/**
+ * Environment configuration for Orama.
+ * Validated at component initialization.
+ */
+function getOramaConfig(): { client: OramaCloud; dataSourceId: string } {
+  const projectId = process.env.NEXT_PUBLIC_ORAMA_PROJECT_ID;
+  const apiKey = process.env.NEXT_PUBLIC_ORAMA_API_KEY;
+  const dataSourceId = process.env.NEXT_PUBLIC_ORAMA_DATASOURCE_ID;
+
+  if (!projectId || !apiKey || !dataSourceId) {
+    throw new Error(
+      "Missing Orama configuration. Please set NEXT_PUBLIC_ORAMA_PROJECT_ID, NEXT_PUBLIC_ORAMA_API_KEY, and NEXT_PUBLIC_ORAMA_DATASOURCE_ID.",
+    );
+  }
+
+  const client = new OramaCloud({
+    projectId,
+    apiKey,
+  });
+
+  return { client, dataSourceId };
+}
+
+// Initialize config at module level (will throw if env vars missing)
+const oramaConfig = getOramaConfig();
 
 export default function CustomSearchDialog(props: SharedProps) {
-  const { search, setSearch, query } = useDocsSearch({
-    type: 'orama-cloud',
+  // Memoize the client to prevent recreation on each render
+  const { client, dataSourceId } = useMemo(() => oramaConfig, []);
+
+  const { search, setSearch, isLoading, results } = useOramaSearch(
     client,
-  });
+    dataSourceId,
+    {
+      debounceMs: 100,
+      maxResultsPerPage: 7,
+    },
+  );
 
   return (
     <SearchDialog
-      search={search}
+      isLoading={isLoading}
       onSearchChange={setSearch}
-      isLoading={query.isLoading}
+      search={search}
       {...props}
     >
       <SearchDialogOverlay />
@@ -40,12 +69,12 @@ export default function CustomSearchDialog(props: SharedProps) {
           <SearchDialogInput />
           <SearchDialogClose />
         </SearchDialogHeader>
-        <SearchDialogList items={query.data !== 'empty' ? query.data : null} />
+        <SearchDialogList items={results !== "empty" ? results : null} />
         <SearchDialogFooter>
           <a
+            className="ms-auto text-fd-muted-foreground text-xs"
             href="https://orama.com"
             rel="noreferrer noopener"
-            className="ms-auto text-xs text-fd-muted-foreground"
           >
             Search powered by Orama
           </a>

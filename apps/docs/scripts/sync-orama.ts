@@ -1,30 +1,60 @@
-import { sync } from 'fumadocs-core/search/orama-cloud';
-import * as fs from 'node:fs/promises';
-import { OramaCloud } from '@orama/core';
+import * as fs from "node:fs/promises";
+import { OramaCloud } from "@orama/core";
+import { type OramaDocument, sync } from "fumadocs-core/search/orama-cloud";
 
-async function updateSearchIndexes() {
+/**
+ * Sync search indexes to Orama Cloud.
+ * Reads the pre-rendered static.json from the Next.js build output
+ * and uploads to Orama Cloud.
+ */
+async function updateSearchIndexes(): Promise<void> {
+  // Validate environment variables
   const apiKey = process.env.ORAMA_PRIVATE_API_KEY;
+  const projectId = process.env.NEXT_PUBLIC_ORAMA_PROJECT_ID;
+  const dataSourceId = process.env.NEXT_PUBLIC_ORAMA_DATASOURCE_ID;
 
-  if (!apiKey) {
-    console.log('No ORAMA_PRIVATE_API_KEY found, skipping sync');
+  if (!apiKey || !projectId || !dataSourceId) {
+    console.log("Missing Orama credentials, skipping sync");
+    console.log(`  ORAMA_PRIVATE_API_KEY: ${apiKey ? "set" : "missing"}`);
+    console.log(
+      `  NEXT_PUBLIC_ORAMA_PROJECT_ID: ${projectId ? "set" : "missing"}`,
+    );
+    console.log(
+      `  NEXT_PUBLIC_ORAMA_DATASOURCE_ID: ${dataSourceId ? "set" : "missing"}`,
+    );
     return;
   }
 
   // Read the pre-rendered search index
-  const content = await fs.readFile('.next/server/app/static.json.body');
-  const records = JSON.parse(content.toString());
+  const staticJsonPath = ".next/server/app/static.json.body";
 
-  const orama = new OramaCloud({
-    projectId: 'ba9a6f25-29c4-4a38-b825-a1e6d8cd72d5',
-    apiKey: apiKey,
-  });
+  try {
+    const content = await fs.readFile(staticJsonPath);
+    const records: OramaDocument[] = JSON.parse(content.toString());
 
-  await sync(orama, {
-    index: 'ba9a6f25-29c4-4a38-b825-a1e6d8cd72d5',
-    documents: records,
-  });
+    // Create Orama client with private API key for admin operations
+    const orama = new OramaCloud({
+      projectId,
+      apiKey,
+    });
 
-  console.log(`Search indexes synced: ${records.length} records`);
+    // Sync documents to Orama Cloud
+    await sync(orama, {
+      index: dataSourceId,
+      documents: records,
+    });
+
+    console.log(`Search indexes synced: ${records.length} records`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("ENOENT")) {
+      console.error(
+        `Error: ${staticJsonPath} not found. Run 'next build' first.`,
+      );
+    } else {
+      console.error("Error syncing search indexes:", error);
+    }
+    process.exit(1);
+  }
 }
 
 void updateSearchIndexes();
